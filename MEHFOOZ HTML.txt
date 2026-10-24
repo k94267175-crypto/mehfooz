@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Mehfooz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Noto+Nastaliq+Urdu:wght@500;700&display=swap">
+<style>
+/* Layout: one narrow column, phone first. Input on top, verdict card below, advice last. */
+:root {
+  --bg: #ffffff;
+  --surface: #f3f7f4;
+  --ink: #14211a;
+  --muted: #566a5e;
+  --line: #d5e2d9;
+  --accent: #0f6b3f;
+  --accent-ink: #ffffff;
+  --scam: #b3261e;
+  --scam-bg: #fdecea;
+  --shak: #8a5a00;
+  --shak-bg: #fff3d6;
+  --safe: #0f6b3f;
+  --safe-bg: #e3f4ea;
+  --font-body: "Mukta", "Segoe UI", system-ui, sans-serif;
+  --font-urdu: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1511; --surface: #16211a; --ink: #e8f1ea; --muted: #9bb0a2; --line: #2a3a2f;
+    --accent: #4cc383; --accent-ink: #08170f;
+    --scam: #ff8a80; --scam-bg: #3a1714; --shak: #f2c46b; --shak-bg: #352a10; --safe: #4cc383; --safe-bg: #123022;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1511; --surface: #16211a; --ink: #e8f1ea; --muted: #9bb0a2; --line: #2a3a2f;
+  --accent: #4cc383; --accent-ink: #08170f;
+  --scam: #ff8a80; --scam-bg: #3a1714; --shak: #f2c46b; --shak-bg: #352a10; --safe: #4cc383; --safe-bg: #123022;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 17px; line-height: 1.5;
+  padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+header { display: flex; flex-direction: column; gap: 4px; padding-bottom: 14px; border-bottom: 2px solid var(--accent); }
+.brand { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+h1 { margin: 0; font-size: 1.7rem; font-weight: 700; letter-spacing: -0.01em; color: var(--accent); }
+.urdu-name { font-family: var(--font-urdu); font-size: 1.8rem; font-weight: 700; color: var(--accent); line-height: 1.9; }
+.sub { margin: 0; color: var(--muted); }
+label.field { display: block; font-weight: 600; margin-bottom: 6px; }
+textarea {
+  width: 100%; min-height: 150px; resize: vertical;
+  font: inherit; color: var(--ink); background: var(--bg);
+  border: 1.5px solid var(--line); border-radius: 8px; padding: 12px;
+  line-height: 1.7;
+}
+textarea:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.examples { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+.examples span { color: var(--muted); font-size: 0.9rem; }
+.chip { font: inherit; font-size: 0.9rem; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.chip:hover { border-color: var(--accent); }
+.go {
+  font: inherit; font-weight: 700; font-size: 1.1rem; width: 100%;
+  background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px;
+  padding: 14px; cursor: pointer; margin-top: 12px;
+}
+.go:hover { filter: brightness(1.08); }
+.privacy { font-size: 0.85rem; color: var(--muted); margin: 8px 0 0; }
+.result { border: 1.5px solid var(--line); border-radius: 10px; overflow: hidden; }
+.verdict { padding: 16px; display: flex; flex-direction: column; gap: 2px; }
+.verdict.scam { background: var(--scam-bg); color: var(--scam); }
+.verdict.shak { background: var(--shak-bg); color: var(--shak); }
+.verdict.safe { background: var(--safe-bg); color: var(--safe); }
+.verdict .big { font-size: 1.9rem; font-weight: 700; line-height: 1.15; }
+.verdict .meta { font-size: 0.95rem; }
+.body { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+h2 { margin: 0 0 6px; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+ul.reasons { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+.todo { background: var(--surface); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.todo p { margin: 0; }
+.copy { align-self: flex-start; font: inherit; font-weight: 600; font-size: 0.95rem; background: var(--bg); color: var(--accent); border: 1.5px solid var(--accent); border-radius: 6px; padding: 6px 14px; cursor: pointer; }
+.report { font-size: 0.95rem; color: var(--muted); margin: 0; }
+.disclaimer { font-size: 0.82rem; color: var(--muted); margin: 0; border-top: 1px solid var(--line); padding-top: 10px; }
+.note { font-size: 0.82rem; color: var(--muted); }
+.info { border-top: 2px solid var(--line); padding-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+.info h2 { margin: 0; }
+.info ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.info .small { font-size: 0.85rem; color: var(--muted); margin: 0; }
+.num { font-variant-numeric: tabular-nums; font-weight: 700; }
+@media (prefers-reduced-motion: no-preference) { .go, .chip { transition: filter .15s, border-color .15s; } }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>Mehfooz</h1>
+      <span class="urdu-name" lang="ur">محفوظ</span>
+    </div>
+    <p class="sub">Paste karein, check karein, mehfooz rahein.</p>
+  </header>
+
+  <section>
+    <label class="field" for="msg">Suspicious message yahan paste karein</label>
+    <textarea id="msg" dir="auto" placeholder="Jaise: Mubarak ho, apka 50000 ka inaam nikla hai..."></textarea>
+    <div class="examples">
+      <span>Misaal (example) try karein:</span>
+      <button class="chip" type="button" data-ex="0">JazzCash block</button>
+      <button class="chip" type="button" data-ex="1">Inaam</button>
+      <button class="chip" type="button" data-ex="2">Aam message</button>
+    </div>
+    <button class="go" id="go" type="button">Check Karo</button>
+    <p class="privacy">Message aap ke browser mein hi check hota hai. Kahin bheja ya save nahi hota.</p>
+  </section>
+
+  <section class="result" id="result" aria-live="polite">
+    <div class="verdict" id="verdict">
+      <span class="big" id="vBig"></span>
+      <span class="meta" id="vMeta"></span>
+    </div>
+    <div class="body">
+      <div>
+        <h2>Is mein kya shak wali baatein hain</h2>
+        <ul class="reasons" id="reasons"></ul>
+      </div>
+      <div class="todo">
+        <h2 style="margin:0">Ab kya karein</h2>
+        <p id="action"></p>
+        <button class="copy" id="copy" type="button">Copy karein</button>
+      </div>
+      <p class="report">Scam hone ka yaqeen ho to number block karein aur apne mulk ke cyber crime idaray ko report karein.</p>
+      <p class="disclaimer">Yeh sirf ek khud-kaar mashwara hai, aakhri faisla aap ka apna hai. Demo version: abhi sirf kuch aam scam tareeqe pehchanta hai aur ghalat bhi ho sakta hai.</p>
+    </div>
+  </section>
+
+  <section class="info">
+    <h2>Aam scam tareeqay</h2>
+    <ul>
+      <li><b>Fake BISP / Ehsaas inaam:</b> "Aap ke Rs.75,600 aaye hain, WhatsApp par rabta karein."</li>
+      <li><b>Account block:</b> "JazzCash / Easypaisa band ho raha hai, is link par click karein."</li>
+      <li><b>OTP ya PIN maangna:</b> Asli bank ya wallet yeh kabhi message par nahi maangta.</li>
+      <li><b>Ghalti se paise:</b> "Ghalti se aap ke account mein aa gaye, wapas bhej dein."</li>
+      <li><b>Dost ban kar naya number:</b> "Emergency hai, abhi paise bhej do."</li>
+      <li><b>Ghar baithe kamai ya paise double:</b> Pehle fee, phir paise ghayab.</li>
+    </ul>
+  </section>
+
+  <section class="info">
+    <h2>Scam report kahan karein</h2>
+    <ul>
+      <li>Shak wala SMS: <span class="num">7726</span> par forward karein (PTA spam)</li>
+      <li>PTA helpline: <span class="num">0800-55055</span>, ya complaint.pta.gov.pk</li>
+      <li>Cyber crime helpline: <span class="num">1991</span></li>
+      <li>Paise chale gaye hon to foran apne bank, JazzCash ya Easypaisa ki official helpline par batayein</li>
+    </ul>
+    <p class="small">Yeh numbers aam websites se liye gaye hain aur badal sakte hain. Report karne se pehle PTA aur FIA/NCCIA ki official website par check kar lein.</p>
+  </section>
+
+  <section class="info">
+    <h2>Mehfooz ki hadd</h2>
+    <p class="small">Yeh abhi pehla prototype hai. Yeh khaas alfaaz aur tareeqon ke qawaid (rules) se kaam karta hai, aur naye ya ghalat likhe scam miss kar sakta hai. "Koi bara khatra nahi" ka matlab "bilkul mehfooz" nahi. Screenshot aur voice note check abhi shamil nahi.</p>
+  </section>
+</div>
+
+<script>
+// Mehfooz rule-based checker (demo). Runs fully in the browser / Node, sends nothing anywhere.
+const SIGNALS = [
+  {
+    id: "secret",
+    weight: 45,
+    reason: "Message aap se PIN, OTP, password, CNIC ya card ki details maang raha hai. Asli bank ya wallet kabhi yeh nahi mangte.",
+    re: /\b(pin|otp|password|pasword|cnic|passport|biometric|atm|card details|account number|4 digit code|code bata|code bhej)\b|پن|پاس ورڈ|شناختی|اکاؤنٹ نمبر|اے ٹی ایم|پن کوڈ/i,
+  },
+  {
+    id: "prize",
+    weight: 35,
+    reason: "Achanak inaam, lottery ya scholarship ka lalach diya ja raha hai. Jis cheez ke liye aap ne apply hi nahi kiya, woh nahi milti.",
+    re: /\b(inaam|inam|lottery|nikla|nikli|nikleya|jeet|scholarship|jitya|jitiya|congratulations|lucky user|lucky winner)\b|انعام|لاٹری|جِتیا|جتیا/i,
+  },
+  {
+    id: "upfront",
+    weight: 35,
+    reason: "Paise pehle bhejne ko kaha ja raha hai (fee, security, transfer ya 'ghalti se aaye paise wapas karo'). Yeh scam ka sab se aam tareeqa hai.",
+    re: /\b(fee|processing|security fee|jama karwa|jama kar|bhej do|bhej dein|bhejein|wapis kar|wapas kar|wapis bhej|easypaisa kar do|transfer kar)\b|فیس|رقم بھیج/i,
+  },
+  {
+    id: "urgent",
+    weight: 20,
+    reason: "Jaldi ka dabao hai (abhi, 24 ghante, warna block). Scammer soochne ka waqt nahi dete.",
+    re: /\b(urgent|jaldi|abhi|24 ghante|warna|block ho|band ho|band kar|kat diya|aaj raat|emergency)\b|فوراً|فوری|بند ہو|جلدی/i,
+  },
+  {
+    id: "threat",
+    weight: 30,
+    reason: "Giraftari, FIA/PTA ya kanooni dhamki di ja rahi hai. Asli idaray paise maang kar giraftari se nahi bachate.",
+    re: /\b(giraftari|fia|pta|notice|cyber crime|court|police)\b|گرفتاری|نوٹس/i,
+  },
+  {
+    id: "link",
+    weight: 30,
+    reason: "Message mein link hai. Unknown number se aaye link par click na karein, chahe woh asli website jaisa lage.",
+    re: /https?:\/\/\S+|\b\S+\.(xyz|top|click|buzz|icu|vip)\b|لنک/i,
+  },
+  {
+    id: "invest",
+    weight: 60,
+    reason: "Paise double ya pakka munafa ka wada hai. Aisi guarantee asli karobar mein nahi hoti.",
+    re: /\b(double|guaranteed profit|pakka munafa|ghar baithe)\b|ڈبل/i,
+  },
+  {
+    id: "windfall",
+    weight: 45,
+    reason: "Achanak paise milne ki khabar di ja rahi hai (mubarak, congratulations, ya 'account mein paise aa gaye'). Aisi khabar ka message se aana khud shak ki nishani hai.",
+    re: { test: (t) => /(rs\.?\s?\d|\d[\d,]{3,}|\d+\s*(rupay|rupees|روپے))/i.test(t) && /(mubarak|mubarek|congratulations|lucky|automatically added|added to your account|مبارک)/i.test(t) },
+  },
+  {
+    id: "contact",
+    weight: 35,
+    reason: "Aap ko WhatsApp par 'rabta karein' kaha ja raha hai. Scammer baat ko chat par le jate hain, jahan woh PIN ya paise maangte hain. Asli idara SMS se WhatsApp par nahi bulata.",
+    re: { test: (t) => /(whatsapp|whatsap|واٹس\s*اپ)/i.test(t) && /(rabta|contact|رابطہ|message karo|msg karo)/i.test(t) },
+  },
+  {
+    id: "impersonate",
+    weight: 20,
+    reason: "Koi khud ko bank, wallet, dost ya sarkari idara bata raha hai, magar number ya link unknown hai. Pehle khud asli number par call karke poochein.",
+    re: /\b(main bank se|jazzcash|easypaisa|bisp|ehsaas|tcs|dost bol|naya number|bank se bol|ke taraf se)\b|جاز کیش|کی طرف سے/i,
+  },
+];
+
+function checkMessage(text) {
+  const t = String(text || "").trim();
+  if (t.length < 8) {
+    return { verdict: "KAM_MAWAD", score: 0, hits: 0, reasons: ["Message bohat chhota hai. Poora message paste karein."], action: "" };
+  }
+  const hits = SIGNALS.filter((s) => s.re.test(t));
+  let score = hits.reduce((a, s) => a + s.weight, 0);
+  const ids = hits.map((h) => h.id);
+  // Combination bonuses: classic scam shapes
+  if (ids.includes("prize") && (ids.includes("secret") || ids.includes("upfront") || ids.includes("link"))) score += 20;
+  if (ids.includes("link") && ids.includes("impersonate")) score += 15;
+  if (ids.includes("threat") && ids.includes("upfront")) score += 15;
+  score = Math.min(score, 100);
+
+  let verdict = "SAFE";
+  if (score >= 55) verdict = "SCAM";
+  else if (score >= 25) verdict = "SHAK";
+
+  const reasons = hits
+    .sort((a, b) => b.weight - a.weight)
+    .slice(0, 3)
+    .map((h) => h.reason);
+
+  const action =
+    verdict === "SCAM"
+      ? "Jawab na dein. Link na kholein, kuch na bhejein. Number block karein aur report karein."
+      : verdict === "SHAK"
+      ? "Ehtiyat karein. Kuch bhejne se pehle bhejne wale ko asli number par call karke confirm karein."
+      : "Koi bara khatra nishan nahi mila. Phir bhi PIN, OTP ya paise kabhi message par na dein.";
+  return { verdict, score, hits: hits.length, reasons, action };
+}
+
+if (typeof module !== "undefined") module.exports = { checkMessage, SIGNALS };
+
+
+(function () {
+  var EXAMPLES = [
+    "Apka JazzCash account block ho gya hai. Abhi is link par click karke apni details update karein warna account band ho jayega. http://jazz-verify.top",
+    "Mubarak ho! Aap ka BISP ka 25000 ka inaam nikla hai. Raqam hasil karne ke liye apna CNIC number likhein aur 500 rupay fee bhej dein.",
+    "Assalam o Alaikum, kal shaam 7 baje ghar aa rahe hain, khana ready rakhna."
+  ];
+  var LABEL = { SCAM: "SCAM HAI", SHAK: "SHAK HAI, EHTIYAT KAREIN", SAFE: "KOI BARA KHATRA NAHI MILA", KAM_MAWAD: "MESSAGE BOHAT CHHOTA HAI" };
+  var CLS = { SCAM: "scam", SHAK: "shak", SAFE: "safe", KAM_MAWAD: "shak" };
+  var $ = function (id) { return document.getElementById(id); };
+  var lastAction = "";
+
+  function render(text) {
+    var r = checkMessage(text);
+    var v = $("verdict");
+    v.className = "verdict " + CLS[r.verdict];
+    $("vBig").textContent = LABEL[r.verdict];
+    $("vMeta").textContent = r.verdict === "KAM_MAWAD" ? "" : "Khatre ke nishan mile: " + r.hits + " (10 mein se)";
+    var ul = $("reasons");
+    ul.textContent = "";
+    var items = r.reasons.length ? r.reasons : ["Is message mein PIN, link, jaldi ya paison ki maang jaise aam scam nishan nahi mile."];
+    items.forEach(function (t) { var li = document.createElement("li"); li.textContent = t; ul.appendChild(li); });
+    lastAction = r.action;
+    $("action").textContent = r.action;
+    $("copy").hidden = !r.action;
+  }
+
+  $("go").addEventListener("click", function () { render($("msg").value); });
+  Array.prototype.forEach.call(document.querySelectorAll(".chip"), function (b) {
+    b.addEventListener("click", function () {
+      $("msg").value = EXAMPLES[Number(b.getAttribute("data-ex"))];
+      render($("msg").value);
+    });
+  });
+  $("copy").addEventListener("click", function () {
+    var btn = $("copy");
+    function done(t) { btn.textContent = t; setTimeout(function () { btn.textContent = "Copy karein"; }, 1500); }
+    try {
+      navigator.clipboard.writeText(lastAction).then(function () { done("Copy ho gaya"); }, fallback);
+    } catch (e) { fallback(); }
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = lastAction; document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); done("Copy ho gaya"); } catch (e) { done("Select karke copy karein"); }
+      document.body.removeChild(ta);
+    }
+  });
+
+  $("msg").value = EXAMPLES[0];
+  render(EXAMPLES[0]);
+})();
+</script>
+
+</body>
+</html>
